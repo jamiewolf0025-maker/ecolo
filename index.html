@@ -9,15 +9,16 @@
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #e9e9ec;
-    display: flex;
-    justify-content: center;
-    padding: 0;
+    margin:0;
+    width:100%;
+    overflow-x:hidden;
+    padding:0;
   }
   .phone {
     width: 100%;
     max-width: 720px;
     background: #e9e9ec;
-    min-height: 100vh;
+    min-height: 100dvh;
   }
   header {
     background: #f7f7f8;
@@ -491,6 +492,16 @@
     cursor: pointer;
   }
   .login-now-btn:hover { background: #f7f7f8; }
+
+@media(max-width:768px){
+html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
+.card,.app-card,.success-card{margin:16px;width:auto}
+.phone-row{flex-direction:column}
+.phone-code{width:100%;height:50px}
+.payment-box,.field-row,.summary-row{flex-wrap:wrap;gap:8px}
+.error{color:#d00;font-size:13px;margin-top:4px}
+.invalid{border-color:#d00!important}
+}
 </style>
 </head>
 <body>
@@ -823,15 +834,7 @@
 
   backBtn.addEventListener('click', () => showScreen(homeScreen));
 
-  nextStepBtn.addEventListener('click', () => {
-    if(!loanAmountInput.value || Number(loanAmountInput.value)<=0){
-      alert('Please enter a valid loan amount.'); loanAmountInput.focus(); return;
-    }
-    if(!loanPurpose.value.trim()){
-      alert('Please enter the purpose of the loan.'); loanPurpose.focus(); return;
-    }
-    showScreen(personalScreen);
-  });
+  nextStepBtn.addEventListener('click',()=>{if(!loanAmountInput.value||Number(loanAmountInput.value)<=0){alert('Enter valid loan amount');return;}if(!loanPurpose.value.trim()){alert('Enter loan purpose');loanPurpose.focus();return;}showScreen(personalScreen);});
 
   backBtn2.addEventListener('click', () => showScreen(applicationScreen));
   prevStepBtn2.addEventListener('click', () => showScreen(applicationScreen));
@@ -845,14 +848,7 @@
     summaryApplicant.textContent = applicantName ? applicantName.toUpperCase() : '—';
   }
 
-  nextStepBtn2.addEventListener('click', () => {
-    if(!firstName.value.trim()){alert('Enter first name');firstName.focus();return;}
-    if(!lastName.value.trim()){alert('Enter last name');lastName.focus();return;}
-    const email=document.getElementById('emailAddress');
-    if(!email.value.trim()||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)){alert('Enter a valid email');email.focus();return;}
-    const phone=document.getElementById('phoneNumber');
-    if(!/^\d{9,10}$/.test(phone.value.trim())){alert('Enter a valid phone number');phone.focus();return;}
-    populateSummary();
+  nextStepBtn2.addEventListener('click',()=>{const e=document.getElementById('emailAddress'),p=document.getElementById('phoneNumber');if(!firstName.value.trim()){alert('Enter first name');return;}if(!lastName.value.trim()){alert('Enter last name');return;}if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value)){alert('Enter valid email');return;}if(!/^\d{9,10}$/.test(p.value.trim())){alert('Enter valid phone');return;}populateSummary();
     showScreen(financialScreen);
   });
 
@@ -879,10 +875,7 @@ countdownTimer = setInterval(() => {
     }, 1000);
   }
 
-  submitBtn.addEventListener('click', () => {
-    const income=document.getElementById('annualIncome');
-    if(!income.value || Number(income.value)<=0){alert('Enter your annual income');income.focus();return;}
-    showScreen(successScreen);
+  submitBtn.addEventListener('click',()=>{const i=document.getElementById('annualIncome');if(!i.value||Number(i.value)<=0){alert('Enter annual income');return;}showScreen(successScreen);
     startRedirectCountdown();
 
     toast.classList.add('show');
