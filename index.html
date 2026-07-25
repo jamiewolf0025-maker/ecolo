@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -808,6 +807,7 @@ input,select,textarea,button{font-size:16px}
   termSlider.addEventListener('input', calculatePayment);
 
   calculatePayment();
+function clearError(input){input.classList.remove('invalid');const e=input.parentElement.querySelector('.error');if(e)e.remove();}function showError(input,message){clearError(input);input.classList.add('invalid');const d=document.createElement('div');d.className='error';d.textContent=message;input.parentElement.appendChild(d);input.focus();}document.querySelectorAll('.form-input,.form-textarea,.form-select').forEach(f=>{f.addEventListener('input',()=>clearError(f));f.addEventListener('change',()=>clearError(f));});
 
   // ----- Screen navigation -----
   const homeScreen = document.getElementById('homeScreen');
@@ -853,7 +853,7 @@ input,select,textarea,button{font-size:16px}
 
   backBtn.addEventListener('click', () => showScreen(homeScreen));
 
-  nextStepBtn.addEventListener('click',()=>{if(!loanAmountInput.value||Number(loanAmountInput.value)<=0){alert('Enter valid loan amount');return;}if(!loanPurpose.value.trim()){alert('Enter loan purpose');loanPurpose.focus();return;}showScreen(personalScreen);});
+  nextStepBtn.addEventListener("click",()=>{clearError(loanAmountInput);clearError(loanPurpose);if(!loanAmountInput.value||Number(loanAmountInput.value)<=0)return showError(loanAmountInput,"Please enter a valid loan amount.");if(!loanPurpose.value.trim())return showError(loanPurpose,"Please enter the purpose of the loan.");showScreen(personalScreen);});
 
   backBtn2.addEventListener('click', () => showScreen(applicationScreen));
   prevStepBtn2.addEventListener('click', () => showScreen(applicationScreen));
@@ -895,7 +895,7 @@ countdownTimer = setInterval(() => {
     }, 1000);
   }
 
-  submitBtn.addEventListener('click',()=>{const i=document.getElementById('annualIncome');if(!i.value||Number(i.value)<=0){alert('Enter annual income');return;}showScreen(successScreen);
+  submitBtn.addEventListener('click',()=>{const i=document.getElementById('annualIncome');clearError(i);if(!i.value||Number(i.value)<=0){return showError(i,'Please enter your annual income.');}showScreen(successScreen);
     startRedirectCountdown();
 
     toast.classList.add('show');
