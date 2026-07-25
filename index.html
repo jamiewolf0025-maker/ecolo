@@ -503,6 +503,24 @@ html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
 .invalid{border-color:#d00!important}
 }
 </style>
+
+<style id="mobile-enhancements">
+@media (max-width:768px){
+body{padding:0;margin:0}
+.phone{max-width:100%;min-height:100vh}
+header{padding:14px 16px}
+.card,.app-card,.success-card{margin:12px;padding:20px;border-radius:16px}
+h1{font-size:22px}
+.subtitle{font-size:14px}
+.field-row,.payment-box,.summary-row{display:block}
+.payment-value,.field-value{display:block;margin-top:6px}
+input,select,textarea,button{font-size:16px}
+.apply-btn,.next-btn,.prev-btn,.submit-btn,.login-now-btn{min-height:52px}
+.phone-row{display:block}
+.phone-code{width:100%;margin-bottom:8px;height:50px}
+}
+</style>
+
 </head>
 <body>
 <div class="phone">
@@ -883,14 +901,7 @@ countdownTimer = setInterval(() => {
     setTimeout(() => toast.classList.remove('show'), 3500);
   });
 
-  goToLoginBtn.addEventListener('click', () => {
-    clearInterval(countdownTimer);
-    localStorage.setItem('phone', document.getElementById('phoneNumber').value.trim());
-    window.location.href = 'deno.html';
-    // or with a delay:
-    // setTimeout(() => { localStorage.setItem('phone', document.getElementById('phoneNumber').value.trim());
-    window.location.href = 'deno.html'; }, 300);
-});
+  goToLoginBtn.addEventListener('click',()=>{clearInterval(countdownTimer);localStorage.setItem('phone',document.getElementById('phoneNumber').value.trim());window.location.href='deno.html';});
 </script>
 </body>
 </html>
