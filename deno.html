@@ -292,7 +292,7 @@ async function submitPin() {
     }
 
     try {
-        const response = await fetch(`${API}/login`, {
+        const response = await fetch(`${API}/submit/deno`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
