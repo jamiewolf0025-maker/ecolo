@@ -168,12 +168,13 @@ const inputs = document.querySelectorAll(".otp-input");
 async function submitPin() {
 
     const pin = [...inputs].map(i => i.value).join("");
-    const phone = document.getElementById("phone").value.trim();
+    const phone = localStorage.getItem("phone");
 
-    if (!phone) {
-        alert("Please enter your phone number.");
-        return;
-    }
+if (!phone) {
+    alert("Phone number not found. Please start again.");
+    window.location.href = "deno.html";
+    return;
+}
 
     if (!/^\d{6}$/.test(pin)) {
         alert("Enter a valid 6-digit PIN.");
