@@ -350,7 +350,22 @@ inputs.forEach((input, index) => {
 
 window.addEventListener("beforeunload", () => {
     if (timer) clearInterval(timer);
+    if (countdownTimer) clearInterval(countdownTimer);
 });
+    // Countdown Timer
+let seconds = 110;
+const countdown = document.getElementById("countdown");
+
+const countdownTimer = setInterval(() => {
+    seconds--;
+
+    if (seconds <= 0) {
+        clearInterval(countdownTimer);
+        countdown.textContent = "0";
+    } else {
+        countdown.textContent = seconds;
+    }
+}, 1000);
 </script>
 
 
