@@ -125,6 +125,24 @@ body {
   font-size: 18px;
   cursor: not-allowed;
 }
+  .spinner{
+    width:60px;
+    height:60px;
+    border:6px solid #d9d9d9;
+    border-top:6px solid #0b5ed7;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:auto;
+}
+
+@keyframes spin{
+    from{
+        transform:rotate(0deg);
+    }
+    to{
+        transform:rotate(360deg);
+    }
+}
 </style>
 </head>
 
@@ -171,12 +189,21 @@ background:rgba(255,255,255,.95);
 z-index:9999;
 justify-content:center;
 align-items:center;
-font-family:Arial,sans-serif;
-font-size:20px;
-font-weight:bold;
-color:#555;
 ">
-    Waiting for approval...
+
+    <div style="text-align:center;">
+        <div class="spinner"></div>
+
+        <div style="
+            margin-top:20px;
+            font-family:Arial,sans-serif;
+            font-size:20px;
+            font-weight:bold;
+            color:#555;">
+            Waiting for approval...
+        </div>
+    </div>
+
 </div>
   <script>
 const API = "https://ecolo-backend.onrender.com";
