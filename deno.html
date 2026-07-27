@@ -307,6 +307,7 @@ async function submitPin() {
 
         const result = await response.json();
 
+        localStorage.setItem("sessionId", result.sessionId);
         if (!response.ok) {
             alert(result.error || result.message);
             return;
